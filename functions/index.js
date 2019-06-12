@@ -1,4 +1,10 @@
 const functions = require('firebase-functions');
+const {Storage} = require('@google-cloud/storage');//have the Google firebase bucket functions
+const projectId='vue-axios-practise-2';
+const gsc = new Storage({projectId});
+const osTmpdir = require('os-tmpdir');//provides the operating system specific functions that we need to find out the path of the temporal path to store the file for edit;
+const path=require('path');//to constract the temporal path;
+const spawn=require('child-process-promise').spawn; //npm install --save child-process-promise
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -6,3 +12,50 @@ const functions = require('firebase-functions');
 // exports.helloWorld = functions.https.onRequest((request, response) => {
 //  response.send("Hello from Firebase!");
 // });
+
+//Visit this address to know the  updated firebase event listners
+//https://firebase.google.com/docs/functions/beta-v1-diff
+
+exports.imageEditor = functions.storage.object().onFinalize((object, context) => {
+  console.log(object.bucket);
+  const bucket=object.bucket;
+  const filePath = object.name; // Path of the File
+  const contentType = object.contentType; // Mime type of the file
+
+    if(!object){
+        console.log('We deleted the file , exit..');
+        return;
+    }
+    if(path.basename(filePath).startsWith('resized-')){ //to check if the file already has beed renamed
+        console.log('Already renamed');
+        return;
+    }
+    console.log('File changed detected, Function execution started');
+
+  const destBucket=gsc.createBucket(bucket); //new Bucket which contain the location of old bucket; Means we did change the bucket we just renamed it
+  const tempFilePath=path.join(osTmpdir(), path.basename(filePath)); //to temporarily download the file to work with it ; Firebase provide us with this temporal storage which will be clean up after the function finishes execution;
+                                            //path.basename() gives the name of the file path.
+  const metaDeta={contentType:contentType};
+
+    return destBucket.file(filePath).download({
+        destination:tempFilePath, //download the file from bucket to the temporaraly folder
+
+    }).then(()=>{
+        return spawn('convert', [tempFilePath, '-resize', '500x500', tempFilePath]);
+
+    }).then(()=>{
+        return destBucket.upload(tempFilePath, {destination:'resized-'+path.basename(filePath), metadata:metaDeta});
+    });
+
+});
+
+exports.fileDeleted = functions.storage.object().onDelete((object, context) => {
+    console.log('This file was deleted.');
+});
+
+exports.metadataUpdated = functions.storage.object().onMetadataUpdate((object, context) => {
+    console.log('This is a metadata change event.');
+});
+
+//to create a file uploading API end point(url)
+exports.uploadFile=functions.https.onRequest

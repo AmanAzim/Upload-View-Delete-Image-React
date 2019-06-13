@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import axios from 'axios';
 import {storageRef} from './firebase/index';
 
+
 class  App extends Component{
 
   state={
@@ -88,13 +89,19 @@ class  App extends Component{
       tempfilesToUpload.splice(index, 1);
       this.setState({filesToUpload:tempfilesToUpload});
 
+
+
       var desertRef = storageRef.child('my_images/'+imageName);//// Create a reference to the file to delete
 
       // Delete the file
       desertRef.delete().then(()=>{
-          alert(imageName+' is deleted');
-      }).catch((error)=>console.log(error));
 
+          let tempUploadedImagesUrl=[...this.state.uploadedImagesUrl];
+          tempUploadedImagesUrl.splice(index, 1);
+          this.setState({uploadedImagesUrl:tempUploadedImagesUrl});
+          //alert(imageName+' is deleted');
+
+      }).catch((error)=>console.log(error));
   };
 
  render(){
@@ -141,10 +148,12 @@ class  App extends Component{
              <div className="row mt-2">
                  <h5 className="offset-md-3 col-md-6 mt-3">Your uploaded images:</h5>
                  <div className="offset-md-3 col-md-6 mt-3">
-                     {this.state.uploadedImagesUrl.map((imgUrl,index)=>{
-                            return <img src={imgUrl} key={imgUrl} width="100px" height="100px" style={{margin: '20px'}} key={index}/>
-                        })
-                     }
+                     <div className="offset-md-3 col-md-6 mt-3">
+                         { this.state.uploadedImagesUrl.map((imgUrl,index)=>{
+                             return <img src={imgUrl} key={imgUrl} width="100px" height="100px" style={{margin: '20px'}}/>
+                           })
+                         }
+                     </div>
                  </div>
              </div>
 

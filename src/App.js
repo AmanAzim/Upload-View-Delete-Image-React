@@ -78,9 +78,24 @@ class  App extends Component{
 
   };
 
-  deleteFileHandler=()=>{
+  deleteFileHandler=(index)=>{
+      let tempImages=[...this.state.images];
+      tempImages.splice(index, 1);
+      this.setState({images:tempImages});
 
-  }
+      let tempfilesToUpload=[...this.state.filesToUpload];
+      const imageName=tempfilesToUpload[index].name;
+      tempfilesToUpload.splice(index, 1);
+      this.setState({filesToUpload:tempfilesToUpload});
+
+      var desertRef = storageRef.child('my_images/'+imageName);//// Create a reference to the file to delete
+
+      // Delete the file
+      desertRef.delete().then(()=>{
+          alert(imageName+' is deleted');
+      }).catch((error)=>console.log(error));
+
+  };
 
  render(){
 
@@ -110,10 +125,15 @@ class  App extends Component{
                  <h5 className="mt-2 mb-2 text-center col-sm-12">Your selected images:</h5>
              </div>
              <div className="row mt-2 mb-2">
-                 <div className="offset-md-3 col-md-6 mt-3">
+                 <div className="offset-md-2 col-md-8 mt-3">
                      {/*<img src={this.state.images[0]} width="100px" height="100px" />*/}
                      {this.state.images.map((img, index)=>{
-                         return <img src={img} width="100px" height="100px" style={{margin: '20px'}} key={index}/>
+                         return (
+                             <div style={{margin: '20px'}}>
+                                 <img src={img} width="100px" height="100px"  key={index}/><br/>
+                                 <button className="btn btn-danger" onClick={()=>this.deleteFileHandler(index)}>Delete</button>
+                             </div>
+                         )
                      })}
                  </div>
              </div>

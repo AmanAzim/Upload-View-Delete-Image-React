@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/storage';
 
+//Visit://https://firebase.google.com/docs/storage/web/upload-files
 
 // Your web app's Firebase configuration
 var firebaseConfig = {
@@ -16,6 +17,7 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-const storage=firebase.storage();
+const storageRef=firebase.storage().ref();
 
-export {storage, firebase as default};
+export {storageRef, firebase as default};
+

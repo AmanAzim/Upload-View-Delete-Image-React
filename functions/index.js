@@ -74,9 +74,9 @@ exports.uploadFile=functions.https.onRequest((req, res)=>{
     cors(req, res, ()=>{
 
         //For POST request only
-        if(req.method !=='POST'){
-            return res.status(500).json({message:'Not allowed'})
-        }
+        //if(req.method !=='POST'){
+          //  return res.status(500).json({message:'Not allowed'})
+        //}
 
         const busboy=new Busboy({headers:req.headers});//so that Busboy identifies if incoming request data is form data or not in the server;
         let uploadData=null;
@@ -105,6 +105,7 @@ exports.uploadFile=functions.https.onRequest((req, res)=>{
         busboy.end(req.rawBody);
     })
 
-});*/
+});
 
 
+*/

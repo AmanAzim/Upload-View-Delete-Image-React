@@ -149,18 +149,16 @@ class  App extends Component{
                       </div>
                   </div>
                   <hr></hr>
-                  <div className="row mt-2">
-                      <h5 className="mb-2 text-center col-sm-12">Your selected images:</h5>
-                  </div>
-                  <div className="row mt-2 mb-2">
+                  <div className="row mb-2">
+                      <h5 className="offset-md-3 col-md-6">Your selected images:</h5>
                       <div className="offset-md-3 col-md-7 mt-3 text-center">
                           {/*<img src={this.state.images[0]} width="100px" height="100px" />*/}
                           {this.state.images.map((file, index)=>{
                               return (
                                   <span  className="mx-2 my-5">
-                                 <img src={file.img} width="100px" height="100px"  key={file.id}/>
-                                 <button className="btn btn-danger" onClick={()=>this.deleteFileHandler(file.id)}>Delete</button>
-                             </span>
+                                        <img src={file.img} width="100px" height="100px"  key={file.id}/>
+                                        <button className="btn btn-danger" onClick={()=>this.deleteFileHandler(file.id)}>Delete</button>
+                                  </span>
                               )
                           })}
                       </div>

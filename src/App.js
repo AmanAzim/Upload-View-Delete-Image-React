@@ -12,7 +12,8 @@ class  App extends Component{
     images:[],
     uploadedImagesUrl:[],
     progress:0,
-    uploaded:false
+    uploaded:false,
+    imagesArrayLen:0,
   };
 
 
@@ -50,36 +51,41 @@ class  App extends Component{
   fileUploadHandler=(event)=>{
       event.preventDefault();
 
-    this.state.filesToUpload.forEach((file, index)=>{
+    this.setState({uploadedImagesUrl:[]},()=>{//inside callback function after setState
 
-        //Storing the image to firebase under "my_images" folder
-        const uploadTask=storageRef.child('my_images/'+file.name).put(file.img);
-        //Three call back functions upon each upload operation 1.indicates progress, 2.shows error, 3. if successful gives the uploaded images URL
-        uploadTask.on('state_changed', (snapshot)=>{
+        this.state.filesToUpload.forEach((file, index)=>{
 
-            /*indicates Progress*/
-            let uploadProgress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-            this.setState((prevState)=>{
-                return {progress:prevState.progress+uploadProgress}
-            })
+            //Storing the image to firebase under "my_images" folder
+            const uploadTask=storageRef.child('my_images/'+file.name).put(file.img);
+            //Three call back functions upon each upload operation 1.indicates progress, 2.shows error, 3. if successful gives the uploaded images URL
+            uploadTask.on('state_changed', (snapshot)=>{
 
-        }, (error)=>{
-            console.log(error)
-        }, ()=>{
-
-            /*Indicates task Completation*/
-            //If successful then get the url of the uploaded image
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL)=>{
-                console.log('File available at', downloadURL);
+                /*indicates Progress*/
+                let uploadProgress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
                 this.setState((prevState)=>{
-                    return { uploadedImagesUrl:[...prevState.uploadedImagesUrl, {id:file.id ,downloadURL:downloadURL}], progress:0 }
+                    return {progress:prevState.progress+uploadProgress}
+                })
+
+            }, (error)=>{
+                console.log(error)
+            }, ()=>{
+
+                /*Indicates task Completation*/
+                //If successful then get the url of the uploaded image
+                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL)=>{
+                    console.log('File available at', downloadURL);
+                    this.setState((prevState)=>{
+                        return { uploadedImagesUrl:[...prevState.uploadedImagesUrl, {id:file.id ,downloadURL:downloadURL}], progress:0 }
+                    });
                 });
+
             });
 
         });
+        this.setState({uploaded:true});//Indicates the file is uploaded
 
-    });
-    this.setState({uploaded:true});//Indicates the file is uploaded
+    })//inside callback function after setState
+
   };
 
   deleteFileHandler=(id)=>{
@@ -124,12 +130,12 @@ class  App extends Component{
                 <div className="offset-md-3 col-md-6">
                     <form>
                         <div className="input-group text-center">
-                            <input type="file" className="form-control"  onChange={this.fileSelectHandler}/>
+                            <input type="file" multiple className="form-control"  onChange={this.fileSelectHandler}/>
                         </div>
                     </form>
                 </div>
                  <div className="offset-md-3 col-md-6 mt-3">
-                     <button className="btn btn-primary" onClick={this.fileUploadHandler}>Upload Image</button>
+                     <button className="btn btn-primary" disabled={this.state.uploadedImagesUrl.length>0} onClick={this.fileUploadHandler}>{this.state.uploadedImagesUrl.length>0? 'Delete all items to upload again':'Upload Image'}</button>
                  </div>
                  <div className="offset-md-3 col-md-6 mt-3">
                      <div className="progress">
@@ -137,16 +143,16 @@ class  App extends Component{
                      </div>
                  </div>
              </div>
-
+             <hr></hr>
              <div className="row mt-5">
-                 <h5 className="mt-2 mb-2 text-center col-sm-12">Your selected images:</h5>
+                 <h5 className="mb-2 text-center col-sm-12">Your selected images:</h5>
              </div>
              <div className="row mt-2 mb-2">
-                 <div className="offset-md-2 col-md-8 mt-3 text-center">
+                 <div className="offset-md-3 col-md-7 mt-3 text-center">
                      {/*<img src={this.state.images[0]} width="100px" height="100px" />*/}
                      {this.state.images.map((file, index)=>{
                          return (
-                             <span  className="mx-1 my-5">
+                             <span  className="mx-2 my-5">
                                  <img src={file.img} width="100px" height="100px"  key={file.id}/>
                                  <button className="btn btn-danger" onClick={()=>this.deleteFileHandler(file.id)}>Delete</button>
                              </span>
@@ -154,17 +160,17 @@ class  App extends Component{
                      })}
                  </div>
              </div>
-
+             <hr></hr>
              <div className="row mt-2">
                  <h5 className="offset-md-3 col-md-6 mt-3">Your uploaded images:</h5>
-                 <div className="offset-md-3 col-md-6 mt-3">
+                 <div className="offset-md-2 col-md-8 mt-3">
                      { this.state.uploadedImagesUrl.map((img,index)=>{
                          return <img src={img.downloadURL} key={img.id} width="100px" height="100px" style={{margin: '20px'}}/>
                      })
                      }
                  </div>
              </div>
-
+             <hr></hr>
          </div>
        </div>
    );

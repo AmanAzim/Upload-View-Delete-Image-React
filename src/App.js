@@ -1,7 +1,6 @@
 import React,{Component} from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
-import axios from 'axios';
 import {storageRef} from './firebase/index';
 
 
@@ -13,7 +12,7 @@ class  App extends Component{
     uploadedImagesUrl:[],
     progress:0,
     uploaded:false,
-    imagesArrayLen:0,
+    uploadStart:false
   };
 
 
@@ -51,7 +50,7 @@ class  App extends Component{
   fileUploadHandler=(event)=>{
       event.preventDefault();
 
-    this.setState({uploadedImagesUrl:[]},()=>{//inside callback function after setState
+    this.setState({uploadedImagesUrl:[], uploadStart:true},()=>{//inside callback function after setState
 
         this.state.filesToUpload.forEach((file, index)=>{
 
@@ -114,67 +113,72 @@ class  App extends Component{
               //After deleting removing the URL of the deleted image fro the list of uploaded images URL so it that it cannot be rendered
               let tempUploadedImagesUrl=[...this.state.uploadedImagesUrl];
               tempUploadedImagesUrl=tempUploadedImagesUrl.filter(item=>item.id!==id);
-              this.setState({uploadedImagesUrl:tempUploadedImagesUrl});
+              this.setState({uploadedImagesUrl:tempUploadedImagesUrl}, ()=>{
+                  if(this.state.uploadedImagesUrl.length<=0){
+                      this.setState({uploadStart:false})
+                  }
+              });
 
           }).catch((error)=>console.log(error));
       }
   };
 
- render(){
+  render(){
+      return (
+          <div className="App">
+              <div className="container-fluid mt-5">
 
-   return (
-       <div className="App">
-         <div className="container-fluid mt-5">
-
-             <div className="row p-5">
-                <div className="offset-md-3 col-md-6">
-                    <form>
-                        <div className="input-group text-center">
-                            <input type="file" multiple className="form-control"  onChange={this.fileSelectHandler}/>
-                        </div>
-                    </form>
-                </div>
-                 <div className="offset-md-3 col-md-6 mt-3">
-                     <button className="btn btn-primary" disabled={this.state.uploadedImagesUrl.length>0} onClick={this.fileUploadHandler}>{this.state.uploadedImagesUrl.length>0? 'Delete all items to upload again':'Upload Image'}</button>
-                 </div>
-                 <div className="offset-md-3 col-md-6 mt-3">
-                     <div className="progress">
-                         <div className="progress-bar"  style={{width:this.state.progress+'%'}}>{this.state.progress}</div>
-                     </div>
-                 </div>
-             </div>
-             <hr></hr>
-             <div className="row mt-5">
-                 <h5 className="mb-2 text-center col-sm-12">Your selected images:</h5>
-             </div>
-             <div className="row mt-2 mb-2">
-                 <div className="offset-md-3 col-md-7 mt-3 text-center">
-                     {/*<img src={this.state.images[0]} width="100px" height="100px" />*/}
-                     {this.state.images.map((file, index)=>{
-                         return (
-                             <span  className="mx-2 my-5">
+                  <div className="row p-5">
+                      <div className="offset-md-3 col-md-6">
+                          <form>
+                              <div className="input-group text-center">
+                                  <input type="file" multiple className="form-control"  onChange={this.fileSelectHandler}/>
+                              </div>
+                          </form>
+                      </div>
+                      <div className="offset-md-3 col-md-6 mt-3">
+                          <button className="btn btn-primary" disabled={this.state.uploadStart} onClick={this.fileUploadHandler}>
+                              {this.state.uploadStart? 'Delete all items to upload again':'Upload Image'}
+                          </button>
+                      </div>
+                      <div className="offset-md-3 col-md-6 mt-3">
+                          <div className="progress">
+                              <div className="progress-bar"  style={{width:this.state.progress+'%'}}>{this.state.progress}</div>
+                          </div>
+                      </div>
+                  </div>
+                  <hr></hr>
+                  <div className="row mt-5">
+                      <h5 className="mb-2 text-center col-sm-12">Your selected images:</h5>
+                  </div>
+                  <div className="row mt-2 mb-2">
+                      <div className="offset-md-3 col-md-7 mt-3 text-center">
+                          {/*<img src={this.state.images[0]} width="100px" height="100px" />*/}
+                          {this.state.images.map((file, index)=>{
+                              return (
+                                  <span  className="mx-2 my-5">
                                  <img src={file.img} width="100px" height="100px"  key={file.id}/>
                                  <button className="btn btn-danger" onClick={()=>this.deleteFileHandler(file.id)}>Delete</button>
                              </span>
-                         )
-                     })}
-                 </div>
-             </div>
-             <hr></hr>
-             <div className="row mt-2">
-                 <h5 className="offset-md-3 col-md-6 mt-3">Your uploaded images:</h5>
-                 <div className="offset-md-2 col-md-8 mt-3">
-                     { this.state.uploadedImagesUrl.map((img,index)=>{
-                         return <img src={img.downloadURL} key={img.id} width="100px" height="100px" style={{margin: '20px'}}/>
-                     })
-                     }
-                 </div>
-             </div>
-             <hr></hr>
-         </div>
-       </div>
-   );
- }
+                              )
+                          })}
+                      </div>
+                  </div>
+                  <hr></hr>
+                  <div className="row mt-2">
+                      <h5 className="offset-md-3 col-md-6 mt-3">Your uploaded images:</h5>
+                      <div className="offset-md-2 col-md-8 mt-3">
+                          { this.state.uploadedImagesUrl.map((img,index)=>{
+                              return <img src={img.downloadURL} key={img.id} width="100px" height="100px" style={{margin: '20px'}}/>
+                          })
+                          }
+                      </div>
+                  </div>
+                  <hr></hr>
+              </div>
+          </div>
+      );
+  }
 }
 
 export default App;

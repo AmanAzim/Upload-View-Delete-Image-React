@@ -137,7 +137,7 @@ class  App extends Component{
                           </form>
                       </div>
                       <div className="offset-md-3 col-md-6 mt-3">
-                          <button className="btn btn-primary" disabled={this.state.uploadStart} onClick={this.fileUploadHandler}>
+                          <button className="btn btn-primary" disabled={this.state.uploadStart||this.state.image.length<=0} onClick={this.fileUploadHandler}>
                               {this.state.uploadStart? 'Delete all items to upload again':'Upload Image'}
                           </button>
                       </div>

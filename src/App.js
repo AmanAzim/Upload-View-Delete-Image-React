@@ -127,8 +127,9 @@ class  App extends Component{
       return (
           <div className="App">
               <div className="container-fluid mt-5">
-
-                  <div className="row p-5">
+                  <h2 className="text-info text-center">Upload Images to Firebase</h2>
+                  <h5 className="text-danger text-center"><b>React</b></h5>
+                  <div className="row p-2">
                       <div className="offset-md-3 col-md-6">
                           <form>
                               <div className="input-group text-center">
@@ -148,7 +149,7 @@ class  App extends Component{
                       </div>
                   </div>
                   <hr></hr>
-                  <div className="row mt-5">
+                  <div className="row mt-2">
                       <h5 className="mb-2 text-center col-sm-12">Your selected images:</h5>
                   </div>
                   <div className="row mt-2 mb-2">
@@ -166,8 +167,8 @@ class  App extends Component{
                   </div>
                   <hr></hr>
                   <div className="row mt-2">
-                      <h5 className="offset-md-3 col-md-6 mt-3">Your uploaded images:</h5>
-                      <div className="offset-md-2 col-md-8 mt-3">
+                      <h5 className="offset-md-3 col-md-6">Your uploaded images:</h5>
+                      <div className="offset-md-2 col-md-8 mt-1">
                           { this.state.uploadedImagesUrl.map((img,index)=>{
                               return <img src={img.downloadURL} key={img.id} width="100px" height="100px" style={{margin: '20px'}}/>
                           })

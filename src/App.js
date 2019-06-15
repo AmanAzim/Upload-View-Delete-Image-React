@@ -106,7 +106,7 @@ class  App extends Component{
 
       //Safety check so that we only try to delete from firebase if the image is uploaded
       if(this.state.uploaded){
-          var desertRef = storageRef.child('my_images/'+file.img.name);//// Create a reference to the file to delete
+          var desertRef = storageRef.child('my_images/'+file.name);//// Create a reference to the file to delete
           // Delete the file
           desertRef.delete().then(()=>{
 
@@ -123,6 +123,16 @@ class  App extends Component{
       }
   };
 
+  componentWillUnmount() {
+      let tempFilesToUpload=[...this.state.filesToUpload];
+      tempFilesToUpload.forEach(file=>{
+          var desertRef = storageRef.child('my_images/'+file.name);//// Create a reference to the file to delete
+          // Delete the file
+          desertRef.delete().then(()=>{
+          }).catch((error)=>console.log(error));
+      })
+  }
+
   render(){
       return (
           <div className="App">
@@ -133,13 +143,13 @@ class  App extends Component{
                       <div className="offset-md-3 col-md-6">
                           <form>
                               <div className="input-group text-center">
-                                  <input type="file" multiple className="form-control"  onChange={this.fileSelectHandler}/>
+                                  <input type="file" multiple className="form-control"  onChange={this.fileSelectHandler} disabled={this.state.uploadStart}/>
                               </div>
                           </form>
                       </div>
                       <div className="offset-md-3 col-md-6 mt-3">
-                          <button className="btn btn-primary" disabled={this.state.uploadStart||this.state.images.length<=0} onClick={this.fileUploadHandler}>
-                              {this.state.uploadStart? 'Delete all items to upload again':'Upload Image'}
+                          <button className="btn btn-primary" disabled={this.state.uploadStart||this.state.filesToUpload.length<=0} onClick={this.fileUploadHandler}>
+                              {this.state.uploadStart? 'Delete all items to upload again' : this.state.filesToUpload.length<=0? 'Select images first':'Upload images'}
                           </button>
                       </div>
                       <div className="offset-md-3 col-md-6 mt-3">
